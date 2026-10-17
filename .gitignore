@@ -1,0 +1,20 @@
+# 本地预习区，永远不提交到远程仓库
+/预习/
+
+# 编辑器、环境和临时文件
+.idea/
+.vscode/
+.venv/
+__pycache__/
+*.py[cod]
+.env
+.env.*
+*.log
+.DS_Store
+.pytest_cache/
+
+# 清洗数据、模型和报告可从步骤脚本重新生成
+/data/*.csv
+/model/
+/artifacts/
+/dist/

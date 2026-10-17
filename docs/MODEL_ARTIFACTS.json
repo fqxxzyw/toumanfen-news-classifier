@@ -1,0 +1,19 @@
+{
+  "release": "v0.1.0",
+  "kind": "existing-demo-models-not-retrained",
+  "note": "Archived existing model files; not retrained with the latest source changes.",
+  "files": [
+    {
+      "path": "model/rf_model.pkl",
+      "bytes": 1584726836,
+      "sha256": "358dd4f3f157b09b2548380014f8c66750894361b4c5a22e8ef4e26ed0324e84",
+      "modified_local": "2026-10-17T19:24:57.642181"
+    },
+    {
+      "path": "model/tfidf_model.pkl",
+      "bytes": 1893941,
+      "sha256": "098cc7ff4518ab16abac3bbb6837066f0a372c20ca60bf96d3576986cfca17b2",
+      "modified_local": "2026-10-17T19:24:57.747636"
+    }
+  ]
+}

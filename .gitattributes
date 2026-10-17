@@ -1,0 +1,10 @@
+* text=auto eol=lf
+*.py text eol=lf
+*.md text eol=lf
+*.txt text eol=lf
+*.html text eol=lf
+*.json text eol=lf
+*.pkl binary
+*.zip binary
+# 保留外部原始数据的空白，不将原有空白作为代码格式错误。
+data/*.txt -whitespace
