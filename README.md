@@ -1,5 +1,63 @@
 # 投满分项目：中文新闻分类与内容分发开发手册
 
+## 快速运行
+
+以下命令在 **Windows Anaconda Prompt / CMD** 中逐条执行。已有项目时进入现有项目根目录；第一次获取代码时执行：
+
+```bat
+git clone https://github.com/fqxxzyw/toumanfen-news-classifier.git
+cd toumanfen-news-classifier
+```
+
+### 准备环境
+
+已有 `toumanfen` 环境时跳过创建，只需激活并安装依赖：
+
+```bat
+conda create -n toumanfen python=3.10 -y
+conda activate toumanfen
+python -m pip install -r requirements.txt
+```
+
+### 已有模型：直接打开演示
+
+确认项目根目录下有配套的 `model/rf_model.pkl`、`model/tfidf_model.pkl` 和 `data/class.txt`。**已有模型无需重新训练，也无需重新清洗数据。** Git 仓库不包含模型文件，新电脑需自行复制已有模型，或按下一小节生成。
+
+第一个终端，在项目根目录启动分类接口：
+
+```bat
+conda activate toumanfen
+python src/05_predict_api.py
+```
+
+保持接口运行，另开一个终端，进入同一项目根目录后执行：
+
+```bat
+conda activate toumanfen
+python -m streamlit run src/06_app.py
+```
+
+打开 **http://localhost:8501**，输入新闻标题并点击“开始分类”。后端接口为 `http://127.0.0.1:8001/predict`，两项服务需要同时运行。
+
+### 第一次使用、没有模型：先准备数据和模型
+
+原始 TXT、类别表和停用词已在 `data/` 中。需要自行训练时，在项目根目录依次执行：
+
+```bat
+python src/01_eda.py
+python src/02_data_process.py
+python src/03_train.py
+python src/04_evaluate.py
+```
+
+训练可能耗时较长；完成后按上面的两个终端启动 API 和页面。各步骤的函数、参数、输入输出和产物见后面的完整教程。
+
+> 如果终端已经位于 `src/`，启动命令改为 `python 05_predict_api.py` 和 `python -m streamlit run 06_app.py`，不要重复添加 `src/`。
+
+---
+
+## 完整教程
+
 投满分项目以中文新闻标题、资讯短文本为输入，预测其所属新闻类别，为频道分发、内容标签、用户兴趣分析和推荐系统提供基础数据。本手册按照“业务理解 → 数据治理 → 特征与模型 → 评估 → 接口 → 页面 → 模型扩展 → 业务应用”的顺序说明整个项目，并逐个解释仓库中的函数。
 
 仓库中的可运行链路是 **jieba + TF-IDF + 随机森林 + Flask + Streamlit**。FastText、BERT、LLM 对照、模型压缩及推荐业务在后文给出设计与开发方法；这些章节会明确标为设计内容，不代表仓库中已经存在对应实现。
@@ -230,7 +288,7 @@ git clone https://github.com/fqxxzyw/toumanfen-news-classifier.git
 cd toumanfen-news-classifier
 ```
 
-私有仓库需要使用有权限的 GitHub 账号。已有本地项目时进入现有目录即可，例如：
+仓库公开，可直接获取代码。已有本地项目时进入现有目录即可，例如：
 
 ```bat
 cd /d D:\soft\python\NLP\投满分项目
