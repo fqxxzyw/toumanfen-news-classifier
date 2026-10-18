@@ -19,3 +19,9 @@ __pycache__/
 models/
 artifacts/
 dist/
+
+# BERT 预训练权重仅保留在本地，配置、分词器与词表可提交
+/04_bert/pretrained/**/*.bin
+/04_bert/pretrained/**/*.h5
+/04_bert/pretrained/**/*.msgpack
+/04_bert/pretrained/**/*.safetensors
