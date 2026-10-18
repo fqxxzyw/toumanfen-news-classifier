@@ -27,7 +27,16 @@ def preprocess_text(text,mode='word'):
     process_text = ' '.join(tokens)
     return process_text
 
-def build_fastte
+def build_fasttest_data(input_path,out_path,label_map,mode='word'):
+    with open(input_path,'r',encoding='utf-8') as input_path,open(out_path,'a',encoding='utf-8') as out_path:
+        for line in input_path:
+            line = line.strip()
+            if not line:
+                continue
+            text,label = line.split('\t')
+            label_id = int(label)
+            class_name = label_map[label_id]
+            build_ = f"__label__{class_name}"
 
 if __name__ == '__main__':
     print(load_label(conf.class_path))
