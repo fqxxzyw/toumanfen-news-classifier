@@ -20,6 +20,6 @@ class Config:
         # 类别路径
         self.class_name_path = PROJECT_PATH / "data" / "class.txt"
         # 随机森林模型保存路径
-        self.rf_model_save_path = PROJECT_PATH / "model" / "rf_model.pkl"
+        self.rf_model_save_path = PROJECT_PATH / "models" / "rf_model.pkl"
         # TF-IDF向量化器保存路径
-        self.tfidf_model_save_path = PROJECT_PATH / "model" / "tfidf_model.pkl"
+        self.tfidf_model_save_path = PROJECT_PATH / "models" / "tfidf_model.pkl"

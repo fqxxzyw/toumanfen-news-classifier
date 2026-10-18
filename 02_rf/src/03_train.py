@@ -34,7 +34,7 @@ def main(argv=None):
     parser.add_argument('--trees-per-batch', type=positive_int, default=TREES_PER_BATCH)
     parser.add_argument('--jobs', type=positive_int, default=N_JOBS)
     parser.add_argument('--predict-batch-size', type=positive_int, default=PREDICT_BATCH_SIZE)
-    parser.add_argument('--output-dir', type=Path, default=None, help='optional alternative model directory')
+    parser.add_argument('--output-dir', type=Path, default=None, help='optional alternative models directory')
     args = parser.parse_args(argv)
     # 1.加载数据
     conf = Config()

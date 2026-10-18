@@ -15,6 +15,7 @@ __pycache__/
 
 # 清洗数据、模型和报告可从步骤脚本重新生成
 /data/*.csv
-/model/
-/artifacts/
-/dist/
+# 目录整理后，各子项目的模型、报告和发布包也不提交
+models/
+artifacts/
+dist/
