@@ -41,7 +41,7 @@ def build_fasttest_data(input_path,out_path,label_map,mode='word'):
             class_name = label_map[label_id]
             fasttext_label = f"__label__{class_name}"
             process_text = preprocess_text(text,mode)
-            fasttext_line = f"{process_text} {fasttext_label}"
+            fasttext_line = f"{fasttext_label} {process_text}"
             output_file.write(fasttext_line+'\n')
             count+=1
     print(f"处理完成，共处理{count}行数据")
@@ -51,4 +51,4 @@ if __name__ == '__main__':
     print(preprocess_text('这是一个测试文本。',mode='char'))
     preprocess_text('这是一个测试文本。',mode='word')
 
-    build_fasttest_data(conf.train_path,conf.,load_label(conf.class_path),mode='word')
+    build_fasttest_data(conf.train_path,conf.processed_data_dir/'train_pro.txt',load_label(conf.class_path),mode='word')
