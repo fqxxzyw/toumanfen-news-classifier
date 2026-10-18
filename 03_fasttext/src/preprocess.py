@@ -51,5 +51,14 @@ if __name__ == '__main__':
     print(preprocess_text('这是一个测试文本。',mode='char'))
     preprocess_text('这是一个测试文本。',mode='word')
 
-    build_fasttest_data(conf.train_path,conf.processed_data_dir/'train_word.txt',load_label(conf.class_path),mode='word')
-    build_fasttest_data(conf.test_path,conf.processed_data_dir/'test_word.txt',load_label(conf.class_path),mode='word')
+    # build_fasttest_data(conf.train_path,conf.processed_data_dir/'train_word.txt',load_label(conf.class_path),mode='word')
+    # build_fasttest_data(conf.test_path,conf.processed_data_dir/'test_word.txt',load_label(conf.class_path),mode='word')
+    # build_fasttest_data(conf.train_path, conf.processed_data_dir / 'train_char.txt', load_label(conf.class_path),
+    #                     mode='char')
+    # build_fasttest_data(conf.test_path, conf.processed_data_dir / 'test_char.txt', load_label(conf.class_path),
+    #                     mode='char')
+
+    build_fasttest_data(conf.dev_path,conf.processed_data_dir / 'dev_word.txt',load_label(conf.class_path),mode='word')
+    build_fasttest_data(conf.dev_path,conf.processed_data_dir / 'dev_char.txt',load_label(conf.class_path),mode='char')
+
+    print('数据处理完成！')
