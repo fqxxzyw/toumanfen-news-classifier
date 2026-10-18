@@ -27,6 +27,8 @@ def preprocess_text(text,mode='word'):
     process_text = ' '.join(tokens)
     return process_text
 
+def build_fastte
+
 if __name__ == '__main__':
     print(load_label(conf.class_path))
     print(preprocess_text('这是一个测试文本。',mode='char'))
