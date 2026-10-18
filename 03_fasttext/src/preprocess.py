@@ -30,7 +30,7 @@ def preprocess_text(text,mode='word'):
     return process_text
 
 def build_fasttest_data(input_path,out_path,label_map,mode='word'):
-    with open(input_path,'r',encoding='utf-8') as input_path,open(out_path,'a',encoding='utf-8') as output_file:
+    with open(input_path,'r',encoding='utf-8') as input_path,open(out_path,'w',encoding='utf-8') as output_file:
         count = 0
         for line in input_path:
             line = line.strip()
@@ -51,4 +51,5 @@ if __name__ == '__main__':
     print(preprocess_text('这是一个测试文本。',mode='char'))
     preprocess_text('这是一个测试文本。',mode='word')
 
-    build_fasttest_data(conf.train_path,conf.processed_data_dir/'train_pro.txt',load_label(conf.class_path),mode='word')
+    build_fasttest_data(conf.train_path,conf.processed_data_dir/'train_word.txt',load_label(conf.class_path),mode='word')
+    build_fasttest_data(conf.test_path,conf.processed_data_dir/'test_word.txt',load_label(conf.class_path),mode='word')
