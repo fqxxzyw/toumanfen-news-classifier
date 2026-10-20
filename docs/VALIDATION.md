@@ -1,4 +1,35 @@
-# v0.2.0 验证记录
+# 验证记录
+
+## 2026-10-20 · BERT 与 DeepSeek 开发更新
+
+环境：Windows、Anaconda `toumanfen`、Python 3.10.22。验证不覆盖现有训练权重，不报告完整 test 成绩。
+
+| 范围 | 检查内容 | 结果 |
+| --- | --- | --- |
+| BERT API / 页面 | unittest 的 6 项检查：请求格式、合法预测、非法输入、错误请求、示例填充、空文本、服务断连与超时 | 通过 |
+| BERT 本地权重 | 模型与 tokenizer 从 best_model 加载，不访问原始预训练目录 | 通过，无 missing/unexpected/mismatched 权重 |
+| BERT 训练流程 | 小模型执行参数更新、验证、最优模型元数据保存、连续未提升早停 | 通过，未重新运行完整 BERT 训练 |
+| BERT 测试入口 | 使用本地真实模型和 test.txt 的前 16 条样本运行 main | 通过，不构成全量 test 指标 |
+| BERT 单条预测 | 验证输出类别 ID 和分数等于 softmax 概率最大值对应项 | 通过 |
+| BERT 页面到接口 | Streamlit AppTest 提交标题，通过真实 HTTP 调用本地 Flask，再使用已保存的 BERT 推理 | 通过，页面显示类别和分数 |
+| DeepSeek 命令行 / 页面 | unittest 的 6 项离线检查：请求格式、JSON/类别校验、输入/截断处理、单条与交互命令行、缺少密钥、页面提交 | 通过，全部使用模拟响应 |
+| DeepSeek SDK | 已安装 openai 3.26.0、python-dotenv 1.2.2、tenacity 9.1.4，验证 SDK 初始化和 --help 入口 | 通过，没有发送外部请求 |
+| Streamlit 服务 | 本地 8501、8502 页面的健康端点 | 启动时均返回 ok；后台服务不是仓库内容 |
+
+复现离线检查时，分别进入对应目录运行：
+
+```powershell
+# 04_bert
+python -m unittest discover -s tests -p test_web.py -v
+
+# 05_LLM
+python -m unittest discover -s tests -p test_deepseek.py -v
+```
+
+DeepSeek 真实调用需用户在本地设置有效密钥与账户额度。`.env` 和密钥不进入源码提交，仓库仅包含 `.env.example`。
+本次不重新训练完整 BERT、不重新评估全量 test，也未进行负载或生产部署验证。
+
+## v0.2.0 历史验证记录
 
 日期：2026-10-18。环境：Windows、Anaconda toumanfen、Python 3.10.22。
 

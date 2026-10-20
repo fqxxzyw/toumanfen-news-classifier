@@ -1,0 +1,4 @@
+openai>=1.60,<4
+python-dotenv>=1.0,<2
+tenacity>=9,<10
+streamlit>=1.40,<2

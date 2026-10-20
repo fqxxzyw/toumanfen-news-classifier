@@ -3,3 +3,6 @@ transformers
 numpy
 scikit-learn
 tqdm
+Flask>=3.0,<4
+streamlit>=1.40,<2
+requests>=2.31,<3

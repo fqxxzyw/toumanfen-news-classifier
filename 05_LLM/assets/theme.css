@@ -1,0 +1,18 @@
+.stApp {
+    background: radial-gradient(ellipse at 90% 8%, #dbeaff 0, transparent 43%),
+                radial-gradient(ellipse at 5% 92%, #dff4f4 0, transparent 38%), #f7faff;
+    color: #173a63;
+}
+[data-testid="stHeader"] { background: rgba(247,250,255,.85); }
+[data-testid="stSidebar"] { background: linear-gradient(165deg, #e5efff, #f0f6ff 65%, #deedf7); border-right: 1px solid #d7e5f4; }
+.block-container { max-width: 1120px; padding-top: 2.5rem; padding-bottom: 4rem; }
+.sea-eyebrow { color: #6687b2; letter-spacing: .22em; font-size: 11px; font-weight: 700; margin-bottom: 12px; }
+.sea-title { color: #173a63; font-size: clamp(30px, 3.3vw, 46px); line-height: 1.4; font-weight: 800; letter-spacing: -.03em; }
+.sea-subtitle { color: #6a809c; font-size: 15px; line-height: 1.9; margin: 12px 0 20px; }
+.sea-tag { display: inline-block; border: 1px solid #cfdef3; border-radius: 999px; padding: 6px 12px; font-size: 12px; color: #5476a1; background: #edf4ff; margin: 0 6px 12px 0; }
+[data-testid="stForm"], [data-testid="stVerticalBlockBorderWrapper"] { border-radius: 18px; background: #ffffff9c; border-color: #d9e5f5; }
+.stButton > button, .stDownloadButton > button, .stFormSubmitButton > button { border-radius: 12px; min-height: 44px; }
+.stButton > button { border-color: #d1dff0; background: #ffffffc9; color: #264e80; }
+.stButton > button:hover { background: #e9f1ff; border-color: #7da4df; color: #234e93; }
+[data-testid="stMetricValue"] { color: #376acb; }
+@media (max-width: 640px) { .block-container { padding-top: 1.5rem; } .sea-title { font-size: 30px; } }

@@ -1,0 +1,5 @@
+!.env.example
+.env
+
+# 本地 API 预测产物，不随源码提交
+/outputs/*.jsonl

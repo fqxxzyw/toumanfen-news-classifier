@@ -1,112 +1,118 @@
-# BERT 新闻分类训练
+﻿# BERT 新闻十分类
 
-当前实现配置、数据加载、十分类微调、dev 验证、宏平均指标、早停和最佳模型保存。
-后续独立 test_model.py、predictor.py 和 Flask 服务尚未实现。
+完成数据加载、BERT 微调、验证集评估、早停、最优模型保存、独立测试与单条预测。Flask API 与 Streamlit 页面启动方式见 [WEB_README.md](WEB_README.md)。代码中包含详细中文注释。
 
-## 运行
+## 安装与训练
 
-从本目录执行：
+在本目录运行：
 
-```bat
+```powershell
 conda activate toumanfen
 python -m pip install -r requirements.txt
 python src/data.py
 python src/train.py
 ```
 
-data.py 只打印类别并创建 DataLoader；train.py 才启动训练。
-也可以在 PyCharm 中直接运行 src/train.py，路径按脚本位置定位。
+`data.py` 只读取数据并创建 DataLoader；`train.py` 执行训练。PyCharm 可直接运行 `src/train.py`，数据与模型路径按文件位置定位。
 
-## 先用小样本试跑
+训练需要在 `pretrained/bert-base-chinese/` 准备匹配的本地 PyTorch 权重。仓库保留分词器和小型配置文件，不上传大型预训练权重或训练后的模型。
 
-```bat
-python src/train.py --epochs 1 --batch-size 2 --max-train-samples 32 --max-dev-samples 16 --output-dir models/smoke_test
+当前训练入口没有命令行超参数解析。需要调整训练设置时修改 `src/config.py`，不要使用旧文档中的 `--epochs`、`--max-train-samples` 或 `--output-dir` 参数。
+
+| 配置 | 默认值 | 用途 |
+| --- | --- | --- |
+| `batch_size` | 16 | 每批样本数 |
+| `max_length` | 64 | 分词后的最大输入长度 |
+| `num_epochs` | 5 | 最多训练轮数 |
+| `learning_rate` | 2e-5 | AdamW 学习率 |
+| `weight_decay` | 0.01 | 权重衰减 |
+| `warmup_ratio` | 0.1 | 学习率预热比例 |
+| `patience` | 2 | 连续未提升多少轮后早停 |
+| `max_grad_norm` | 1.0 | 梯度裁剪阈值 |
+| `seed` | 42 | 随机种子 |
+| `num_workers` | 0 | DataLoader 子进程数 |
+| `device` | 自动选择 | CUDA 可用时使用 GPU，否则使用 CPU |
+
+## 训练与评估流程
+
+1. 固定随机种子，读取类别名称及其 ID 映射。
+2. 加载带分类头的 BERT 和配套 tokenizer，移到运行设备。
+3. 训练集打乱，验证集保持顺序；按批次分词、动态补齐、截断并添加 labels。
+4. 每批清空梯度，前向计算交叉熵，反向传播，裁剪梯度，更新参数与学习率。
+5. 每轮在 dev 集执行 `model.eval()` 与 `torch.no_grad()`，汇总真实标签和预测标签。
+6. 验证集宏平均 F1 严格提升时保存模型；否则连续未提升次数加一，达到 patience 后停止。
+
+`metrics.py` 的 `cal_metrics` 返回 `(accuracy, precision, recall, f1, report)` 元组，训练代码使用下标 3 读取 F1。P/R/F1 按实际出现的真实或预测类别做宏平均；分类报告显式列出全部类别。仅用于展示的训练损失是各批平均损失的均值。
+
+当前入口会更新相同的 best_model 目录，不含非空目录保护、历史日志自动生成或断点续训。重新实验前需要保留旧模型时，请先自行备份目录或修改配置中的保存路径。
+
+## 独立测试与单条预测
+
+先确保存在完整的 `models/best_model`：
+
+```powershell
+python src/test_model.py
+python src/predictor.py
 ```
 
-样本限制读取文件前若干条，只用于检查流程，不是正式成绩。
-正式训练直接运行 `python src/train.py`，默认使用全部 train/dev 数据、batch_size=16、5 轮。
-当前 toumanfen 解释器为 CPU 版 PyTorch；脚本自动选择设备，CPU 全量训练耗时较长。
-可以使用 --device cpu/cuda，显式指定 cuda 时会检查是否可用。
+`test_model.py` 自动加载正确的 BERT 模型类型，并读取 `config.test_path` 评估测试集；它与训练共用评估函数。`predictor.py` 运行文件末尾的示例文本，可修改后执行，也可在其他脚本导入：
 
-## 训练流程与配置
+```python
+from predictor import BertNewsClassifierPredictor
 
-1. 固定随机种子，读取十个类别和本地预训练权重，初始化新闻分类头。
-2. 训练集打乱，dev 不打乱；训练和验证均复用 data.py 的分词与动态补齐。
-3. 每轮训练：前向计算交叉熵、反向传播、梯度裁剪、AdamW 更新、学习率更新。
-4. dev 阶段使用 eval 和 inference_mode，计算平均 loss、accuracy、宏平均 P/R/F1。
-5. dev 宏平均 F1 严格提升才保存最佳模型；连续 patience 轮未提升则早停。
-6. 每轮更新 history.json，显示进度条、loss、accuracy 和学习率；不读取 test 集。
+predictor = BertNewsClassifierPredictor()
+result = predictor.predict_one("球队在总决赛中获得冠军")
+print(result)
+```
 
-| 参数 | 默认值 | 修改方式 |
-| --- | --- | --- |
-| epochs | 5 | --epochs |
-| batch_size | 16 | --batch-size |
-| max_length | 64 | --max-length |
-| learning_rate | 2e-5 | --learning-rate |
-| patience | 2 | --patience |
-| weight_decay | 0.01 | config.py |
-| warmup_ratio | 0.1 | config.py；预热后线性衰减 |
-| max_grad_norm | 1.0 | config.py |
-| seed | 42 | config.py |
+返回 `pred`（类别 ID）、`class`（英文标签）和 `score`（该类别的 softmax 概率）。分数不等于测试集准确率；单条预测器加载一次后可重复使用。
 
---pretrained-dir 指定本地预训练目录，--output-dir 指定训练结果目录。
-默认不覆盖非空输出目录；重新实验可指定新目录，确实要覆盖时使用 --overwrite-output。
-当前保存最佳推理权重，不保存优化器/调度器状态，尚不支持中断后继续原训练步数。
+## API 与页面
 
-## 输出文件
+两个终端均位于 `04_bert`，分别执行：
 
-默认保存到 `04_bert/models/best_model/`，模型目录已被 Git 忽略：
+```powershell
+python src/api.py
+```
 
-- model.safetensors 等权重文件及 config.json：最佳十分类模型与类别映射。
-- tokenizer 配置和词表：与最佳模型配套的分词器。
-- best_metrics.json：最佳轮次、dev loss、accuracy、宏平均 P/R/F1。
-- history.json：每轮训练/验证指标、学习率、耗时和是否刷新最佳值。
-- training_args.json：本次路径、参数、类别顺序、随机种子与模型选择指标。
+```powershell
+python -m streamlit run src/app.py --server.address 127.0.0.1 --server.port 8501
+```
 
-后续测试或部署时，模型与分词器都应从这个目录加载。
-首次把预训练模型转成分类模型时，classifier.weight/bias 新初始化属于正常现象，需要微调学习。
+页面为 <http://127.0.0.1:8501>，接口为 `POST http://127.0.0.1:8000/predict`，请求体 `{"text": "新闻标题"}`。页面通过 HTTP 调用 API，模型只在 API 启动时加载一次。与 FastText 的默认端口重复，切换时请先停止旧服务。更多调用示例、错误码和分享说明见 [WEB_README.md](WEB_README.md)。
 
-## 数据与分词器
+## 保存内容与分享
 
-- train.txt 180,000 条，dev.txt、test.txt 各 10,000 条。
-- 每行 UTF-8 `标题<Tab>整数标签`，编号对应 class.txt 的行号。
-- pretrained/bert-base-chinese 提供 config.json、tokenizer.json、tokenizer_config.json 和 vocab.txt。
-- data.py 只使用 AutoTokenizer，不需要大型权重；train.py 需要本地 PyTorch 预训练权重。
-- 训练前需准备与 bert-base-chinese 配置匹配的 PyTorch 权重，放在同一预训练目录。
-  本地 .bin、.h5、.msgpack 权重不上传；只用 PyTorch 时无需准备全部框架权重。
+训练时保存至 `models/best_model/`：
 
-## 函数与数据流
+- `model.safetensors` 等权重与 `config.json`：完整微调模型及类别映射。
+- tokenizer 文件：配套分词器。
+- `metadata.json`：类别顺序、最大输入长度、最优验证集 F1 和训练来源路径。
 
-| 函数 / 类 | 输入 | 处理与输出 |
-| --- | --- | --- |
-| Config.__init__ | 无 | 路径、batch_size、max_length、训练参数、设备配置 |
-| load_class_list | 配置中的类别文件 | 按编号排列的类别列表 |
-| load_news_data(file_path, max_samples) | 数据路径、可选样本上限 | 跳过空行，按 Tab 拆分，返回 (text, int(label)) 列表，格式异常报告行号 |
-| NewDataSet.__init__ | samples | 保存样本 |
-| NewDataSet.__len__ | 无 | 样本数量 |
-| NewDataSet.__getitem__ | 索引 | 一条 (text, label) |
-| build_context_fn | tokenizer、可选 max_length | 返回 DataLoader 使用的 collate_fn |
-| 内部 collate_fn | 一批样本 | 分词、动态 padding、截断、添加 long 类型 labels |
-| build_dataloader | 路径、tokenizer、shuffle，可选 max_samples/config | 读取数据，按指定配置构建 Dataset 和 DataLoader |
-| metrics.py / compute_metrics | 真实/预测标签、类别总数 | accuracy 和完整类别集合上的宏平均 P/R/F1，零除记为 0 |
-| train.py / set_seed | seed | 固定 Python、NumPy、PyTorch 随机源 |
-| build_optimizer | model、config | 对矩阵权重衰减，对 bias/LayerNorm 等一维参数不衰减 |
-| train_one_epoch | 模型、loader、优化器、调度器、配置、轮次 | 更新参数，返回按样本加权的平均 loss 和准确率 |
-| evaluate | 模型、loader、设备、类别数 | 无梯度验证，返回 dev loss 与分类指标 |
-| save_best_model | 模型、tokenizer、路径、dev 指标、轮次 | 保存可重新加载的模型、分词器、最佳指标 |
-| main | 可选命令行参数 | 组织加载、训练、验证、保存、记录与早停 |
+当前脚本不生成 `history.json`、`best_metrics.json` 或 `training_args.json`；如果本地目录有这些文件，可能是先前实现留下的记录。
 
-数据流：TXT → samples → NewDataSet → DataLoader → collate_fn → 模型输入字典。
-批次包含 input_ids、attention_mask、通常还有 token_type_ids，以及 labels。
-默认 batch_size=16、max_length=64、num_workers=0，按 CUDA 是否可用选择设备。
-动态 padding 仅补到当前批次最长文本，因此长度不一定是 64。
+给同学做预测时，提供整个 best_model 文件夹与预测代码、运行依赖即可，不需要原始预训练模型。约 390 MB 的权重不在 GitHub 源码中，需要另行提供；metadata 中记录的原始训练路径不要求在对方电脑上存在。
 
-已读取 180,000 条训练样本，首个非随机 batch 的 input_ids=(16,26)，labels=(16,)。
-训练入口已使用本地真实预训练权重，在临时目录完成 2 条样本的一次参数更新、
-dev 验证、最佳模型保存及重新加载检查，没有启动全量训练或覆盖已有模型。
+## 数据与函数
 
-## 今日修复
+原始数据每行 UTF-8 `新闻标题<Tab>整数标签`，train/dev/test 分别为 180,000/10,000/10,000 条。类别 ID 对应 `class.txt` 的顺序。
 
-1. load_news_data 定义与调用不一致：接收 file_path，并用它代替不存在的 conf.news_path。
-2. conf.max_len 不存在：统一为 conf.max_length。
-3. 分词器路径从 ../pretrained 改为 conf.pretrained_model_path，避免工作目录影响。
+| 函数或类 | 用途 |
+| --- | --- |
+| `load_class_list()` | 按 ID 顺序读取类别名称 |
+| `load_news_data(file_path, max_samples=None)` | 读取文本与整数标签，支持可选样本数量限制 |
+| `NewDataSet` | 保存样本，提供长度与下标取样 |
+| `build_context_fn(tokenizer, max_length=None)` | 返回分词、动态补齐、添加 labels 的批处理函数 |
+| `build_dataloader(file_path, tokenizer, shuffle, max_samples=None, config=None)` | 构建 DataLoader，首个参数是文件路径，配置通过 config= 单独传入 |
+| `cal_metrics(y_true, y_pred, class_name)` | 计算指标和逐类别报告 |
+| `evaluate(model, data_loader, device, class_name)` | 无梯度评估并返回指标元组 |
+| `train()` | 组织训练、验证、保存与早停 |
+| `BertNewsClassifierPredictor.predict_one(text)` | 单条文本预测 |
+
+## 验证
+
+```powershell
+python -m unittest discover -s tests -p test_web.py -v
+```
+
+六项检查验证 API 输入处理及页面交互，不加载真实 BERT。开发时另用本地真实模型验证了单条预测、前 16 条测试样本以及页面到 Flask 的完整调用，详见 [验证记录](../docs/VALIDATION.md)。这些检查不构成全量 test 基准；没有因整理源码而重新执行完整训练。
