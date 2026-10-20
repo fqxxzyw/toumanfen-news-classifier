@@ -1,6 +1,6 @@
 # 投满分项目：中文新闻标题分类
 
-按学习阶段实现新闻十分类。开发进度更新至 **2026-10-20**；最近正式发布版本为 **v0.2.0 · 2026-10-18**。
+按学习阶段实现新闻十分类。当前版本：**v0.3.0 · 2026-10-20**。
 
 | 阶段 | 教程 | 已实现内容 |
 | --- | --- | --- |
@@ -10,8 +10,8 @@
 | 04 | [BERT](04_bert/README.md) | 微调、dev 验证、早停、独立测试、单条预测、Flask API 和 Streamlit 页面 |
 | 05 | [DeepSeek / 大肥鱼](05_LLM/README.md) | LLM 新闻十分类、命令行交互、JSON 校验和大肥鱼主题 Streamlit 页面 |
 
-查看 [版本记录](CHANGELOG.md)、[本次发布说明](docs/releases/v0.2.0.md) 和
-[实际验证记录](docs/VALIDATION.md)。昨日记录保留在 [随机森林 CHANGELOG](02_rf/CHANGELOG.md)。
+查看 [版本记录](CHANGELOG.md)、[本次发布说明](docs/releases/v0.3.0.md)、
+[今日进度](docs/progress/2026-10-20.md) 和 [实际验证记录](docs/VALIDATION.md)。早期记录保留在 [随机森林 CHANGELOG](02_rf/CHANGELOG.md)。
 
 ## 快速运行 FastText
 
@@ -129,4 +129,4 @@ python -m streamlit run src/app.py --server.address 127.0.0.1 --server.port 8502
 - 密钥配置只提交 `05_LLM/.env.example` 空值样例；`.env`、`.env.local` 与真实密钥不上传。
 - 大肥鱼页面使用项目内的主题插画，可离线加载；图片来源与生成提示词见 [资源说明](05_LLM/assets/README.md)。
 - 已有历史中的 CSV 和 FastText 格式数据继续保留，不改写历史。
-- 固定版本可下载 GitHub Release 的 Source code (zip)，或使用 `git clone --branch v0.2.0 --depth 1 https://github.com/fqxxzyw/toumanfen-news-classifier.git`。
+- 固定版本可下载 [v0.3.0 Release](https://github.com/fqxxzyw/toumanfen-news-classifier/releases/tag/v0.3.0) 的 Source code (zip)，或使用 `git clone --branch v0.3.0 --depth 1 https://github.com/fqxxzyw/toumanfen-news-classifier.git`。
