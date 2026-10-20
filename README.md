@@ -7,7 +7,7 @@
 | 01 | [数据处理](01_data/README.md) | 分析、清洗、分词、TXT 转 CSV |
 | 02 | [随机森林](02_rf/README.md) | TF-IDF、训练、验证、API 和页面，保留 v0.1.0 教程 |
 | 03 | [FastText](03_fasttext/README.md) | 字符/词语预处理、训练、调参、四模型评估、预测、API 和页面 |
-| 04 | [BERT](04_bert/README.md) | 配置、Dataset、分词和 DataLoader；尚未实现微调训练与评估 |
+| 04 | [BERT](04_bert/README.md) | 数据加载、微调训练、dev 指标、早停和最佳模型保存；独立测试与部署待实现 |
 
 查看 [版本记录](CHANGELOG.md)、[本次发布说明](docs/releases/v0.2.0.md) 和
 [实际验证记录](docs/VALIDATION.md)。昨日记录保留在 [随机森林 CHANGELOG](02_rf/CHANGELOG.md)。
@@ -62,10 +62,13 @@ dev 同时用于自动调参，表格不能当作最终独立 test 成绩。评�
 cd 04_bert
 python -m pip install -r requirements.txt
 python src/data.py
+python src/train.py
 ```
 
-已验证 180,000 条训练样本与首个 batch。主入口只创建并打印 DataLoader，不执行微调。
-仓库提供分词器配置和词表，本阶段不需要大型模型权重。函数说明见 [BERT 教程](04_bert/README.md)。
+data.py 只创建并打印 DataLoader；新增的 train.py 执行微调与 dev 验证。
+仓库提供分词器配置和词表，训练需要本地另备 PyTorch 预训练权重。
+数据加载已验证 180,000 条；训练已完成临时小样本检查，没有自动启动全量训练。
+小样本命令、产物与函数说明见 [BERT 教程](04_bert/README.md)。
 
 ## 数据与发布约定
 

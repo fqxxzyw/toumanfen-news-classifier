@@ -1,2 +1,5 @@
 torch
 transformers
+numpy
+scikit-learn
+tqdm
