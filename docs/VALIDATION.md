@@ -1,5 +1,28 @@
 # 验证记录
 
+## 2026-10-21 · LLM 评估与 INT8 实验
+
+环境：Windows、Python 3.10.22、Anaconda toumanfen、PyTorch 2.14.1+cu126、TorchAO 0.18.0、Transformers 5.19.0。CPU 推理；没有重新训练 BERT。
+
+| 检查 | 结果与边界 |
+| --- | --- |
+| LLM 自动检查 | 23 项通过；HTTP、批处理、分类封装、用量、CSV 标签兼容与指标；外部调用全部模拟 |
+| 量化自动检查 | 10 项通过；数据与标签校验、完整样本汇总、权重加载入口、计时与 p95 |
+| 实际量化 | 74 个 Linear 层转为 TorchAO INT8；保存配置、分词器和 state_dict |
+| 实际恢复 | 新进程恢复，3 条测试新闻批量推理、有限 logits、重复推理一致性通过 |
+| 实际质量评估 | 同一测试集前 64 条，均为 education；FP32/INT8 Accuracy 均 0.953125，十类宏平均 F1 均约 0.0976；不代表全量成绩 |
+| 实际权重大小 | FP32 390.1718 MiB、INT8 145.9637 MiB，压缩 2.6731 倍 |
+| 延迟入口试跑 | 同一批 `(1,22)`、4 线程、预热 1 次、计时 3 次；FP32 p50/p95 98.025/116.466 ms，INT8 2318.776/2367.840 ms；仅作流程检查，不是稳定基准 |
+
+从仓库根目录复现自动检查：
+
+```powershell
+python -m unittest discover -s 05_LLM/tests -p 'test_*.py' -v
+python -m unittest discover -s 06_model_quantization/tests -p 'test_*.py' -v
+```
+
+真实模型验证需自行准备权重，命令及限制见 [今日进度](progress/2026-10-21.md) 和 [量化教程](../06_model_quantization/README.md)。本次发布整理不调用真实 DeepSeek API，也不上传本地模型或预测产物。
+
 ## 2026-10-20 · BERT 与 DeepSeek 开发更新
 
 环境：Windows、Anaconda `toumanfen`、Python 3.10.22。验证不覆盖现有训练权重，不报告完整 test 成绩。

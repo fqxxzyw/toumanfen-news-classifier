@@ -41,6 +41,9 @@ class DeepSeekClient:
         self.model = model or settings.get('DEEPSEEK_MODEL') or self.config.model_name
         self.base_url = settings.get('DEEPSEEK_BASE_URL') or self.config.base_url
         self._client = None
+        # 保存最近一次成功分类的 SDK 用量对象，不改变 classify 的字典返回结构。
+        # API 返回 usage 时，可通过 last_usage.total_tokens 查看本次总 token 数。
+        self.last_usage = None
 
     @property
     def configured(self):
@@ -68,6 +71,8 @@ class DeepSeekClient:
 
     def classify(self, title):
         """输入一条新闻标题，返回 {'category': 英文类别, 'reason': 分类理由}。"""
+        # 重新调用失败时不保留上一次的用量，避免误把旧消耗当成本次结果。
+        self.last_usage = None
         if not isinstance(title, str) or not title.strip():
             raise DeepSeekClientError('新闻标题必须是非空字符串。')
         title = title.strip()
@@ -109,6 +114,9 @@ class DeepSeekClient:
             raise DeepSeekClientError('模型返回了不在十分类列表中的类别，请重试。')
         if not isinstance(result.get('reason'), str) or not result['reason'].strip():
             raise DeepSeekClientError('模型返回的分类理由为空或类型错误，请重试。')
+        # usage 位于完整响应 response 上，不在 choices[0].message 上。
+        # 某些兼容服务可能不返回 usage，此时保留 None，而不是编造 0。
+        self.last_usage = getattr(response, 'usage', None)
         return {'category': result['category'], 'reason': result['reason'].strip()}
 
 

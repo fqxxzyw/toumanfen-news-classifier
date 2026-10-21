@@ -1,6 +1,6 @@
 # 投满分项目：中文新闻分类完整教程
 
-用同一套中文新闻标题数据，依次学习数据处理、TF-IDF + 随机森林、FastText、BERT 微调，以及 DeepSeek 提示词分类，并把分类能力接到 HTTP 接口和网页。本教程面向第一次接触项目的使用者与希望逐步读懂代码的学习者。
+用同一套中文新闻标题数据，依次学习数据处理、TF-IDF + 随机森林、FastText、BERT 微调、DeepSeek 提示词分类和 BERT INT8 量化，并把分类能力接到 HTTP 接口和网页。本教程面向第一次接触项目的使用者与希望逐步读懂代码的学习者。
 
 <a id="quick-start"></a>
 ## 先跑起来：快速启动
@@ -322,6 +322,11 @@ toumanfen-news-classifier/
 │   ├── .env.example              # 可提交的空值配置样例
 │   ├── .env                      # 用户本地密钥，Git 忽略
 │   └── outputs/                  # --save 生成的 JSONL
+├── 06_model_quantization/
+│   ├── data/test.txt             # 同一十分类测试数据
+│   ├── src/                      # 量化、数据加载、质量评估、大小与延迟比较
+│   ├── tests/                    # 数据、指标与计时的回归检查
+│   └── models/                   # 本地 FP32 和 INT8 权重，不上传
 └── docs/
     ├── VALIDATION.md             # 实际检查的范围和证据
     ├── progress/                 # 按日期保存进度
@@ -1453,6 +1458,11 @@ FastText 量化、BERT 量化/蒸馏、ONNX 导出、批量推理等都属于后
 | [05_LLM/src/prompts.py](05_LLM/src/prompts.py) | 类别字典、SYSTEM_PROMPT、USER_PROMPT | 任务、数据边界与结构化结果 |
 | [05_LLM/src/deepseek_client.py](05_LLM/src/deepseek_client.py) | read_local_settings、DeepSeekClient、classify、save_result、main | 配置、网络错误、结果校验、CLI |
 | [05_LLM/src/app.py](05_LLM/src/app.py) | fill_example、main | 本次会话密钥、复用客户端、结果导出 |
+| [05_LLM/src/classifer.py](05_LLM/src/classifer.py) | classify_news | 字符串输入、字段映射、用量与连接释放 |
+| [05_LLM/src/evalute.py](05_LLM/src/evalute.py) | evaluate_predictions、main | 旧 CSV 列名兼容、成功去重、标签统一 |
+| [06_model_quantization/src/quantize_model.py](06_model_quantization/src/quantize_model.py) | quantize_model、load_int8_model | Linear 动态 INT8 量化、state_dict 保存与恢复 |
+| [06_model_quantization/src/evaluate.py](06_model_quantization/src/evaluate.py) | evaluate_model、run_evaluation | 同数据比较 FP32 与 INT8，完整样本汇总指标 |
+| [06_model_quantization/src/benchmark.py](06_model_quantization/src/benchmark.py) | benchmark_model、main | 固定批次、预热、p50/p95 与 CPU 线程 |
 
 阅读时还要注意导入副作用：RF 的 prediction.py 和 FastText 的 API 会在导入时加载模型；BERT 的 create_app 在创建应用时加载；DeepSeek 直到实际 classify 才创建 SDK 连接。`if __name__ == '__main__'` 控制入口是否执行，不表示整个模块导入过程必然没有其他操作。
 
@@ -1467,6 +1477,7 @@ FastText 量化、BERT 量化/蒸馏、ONNX 导出、批量推理等都属于后
 - [04_bert：训练、测试、预测](04_bert/README.md)
 - [04_bert：API 与页面启动](04_bert/WEB_README.md)
 - [05_LLM：DeepSeek 客户端与大肥鱼页面](05_LLM/README.md)
+- [06_model_quantization：INT8 量化、评估与大小/延迟比较](06_model_quantization/README.md)
 
 阶段文档可能包含历史版本的扩展设计，判断是否可运行应以相应源文件与本总教程中的入口为准。
 
