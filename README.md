@@ -1,6 +1,8 @@
 # 投满分项目：中文新闻分类完整教程
 
-用同一套中文新闻标题数据，依次学习数据处理、TF-IDF + 随机森林、FastText、BERT 微调、DeepSeek 提示词分类和 BERT INT8 量化，并把分类能力接到 HTTP 接口和网页。本教程面向第一次接触项目的使用者与希望逐步读懂代码的学习者。
+用同一套中文新闻标题数据，依次学习数据处理、TF-IDF + 随机森林、FastText、BERT 微调、DeepSeek 提示词分类、BERT INT8 量化、知识蒸馏和剪枝，并把分类能力接到 HTTP 接口和网页。本教程面向第一次接触项目的使用者与希望逐步读懂代码的学习者。
+
+当前版本 **v0.4.0**：新增蒸馏与剪枝实验源码。新阶段的准备步骤、运行入口和验证范围见 [发布说明](docs/releases/v0.4.0.md)。
 
 <a id="quick-start"></a>
 ## 先跑起来：快速启动
@@ -327,6 +329,16 @@ toumanfen-news-classifier/
 │   ├── src/                      # 量化、数据加载、质量评估、大小与延迟比较
 │   ├── tests/                    # 数据、指标与计时的回归检查
 │   └── models/                   # 本地 FP32 和 INT8 权重，不上传
+├── 07_model_distillation/
+│   ├── data/                     # train/dev/test/class 原始数据
+│   ├── src/                      # Teacher 缓存、BiLSTM Student、蒸馏训练与预测
+│   ├── cache/                    # 本地 Teacher 缓存，不上传
+│   └── models/                   # 本地 Teacher 和 Student 权重，不上传
+├── 08_model_prune/
+│   ├── data/                     # train/dev/test/class 原始数据
+│   ├── src/                      # Query 剪枝、恢复训练、评估与预测
+│   ├── outputs/                  # 本地运行输出，不上传
+│   └── models/                   # 本地原始和剪枝模型，不上传
 └── docs/
     ├── VALIDATION.md             # 实际检查的范围和证据
     ├── progress/                 # 按日期保存进度
@@ -1254,7 +1266,7 @@ git check-ignore -v 05_LLM/.env
 
 GitHub Release 的 Source code 来自版本标签中的已跟踪文件，不会包含电脑里所有同名文件夹。模型、密钥、缓存、IDE 配置和本地 `预习/` 都不作为源码交付内容。
 
-获取最新教程可看 main；需要固定代码时可使用 [v0.3.0 Release](https://github.com/fqxxzyw/toumanfen-news-classifier/releases/tag/v0.3.0)。固定 commit 或标签中的 README 不会随着 main 修改而自动变化。
+获取最新教程可看 main；需要固定代码时可使用 [v0.4.0 Release](https://github.com/fqxxzyw/toumanfen-news-classifier/releases/tag/v0.4.0)。固定 commit 或标签中的 README 不会随着 main 修改而自动变化。
 
 <a id="workflow"></a>
 ## 14. 从零到完成的操作清单

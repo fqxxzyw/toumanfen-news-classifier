@@ -21,6 +21,10 @@ models/
 artifacts/
 dist/
 
+# 蒸馏教师缓存与剪枝运行报告仅保留在本地
+/07_model_distillation/cache/
+/08_model_prune/outputs/
+
 # BERT 预训练权重仅保留在本地，配置、分词器与词表可提交
 /04_bert/pretrained/**/*.bin
 /04_bert/pretrained/**/*.h5

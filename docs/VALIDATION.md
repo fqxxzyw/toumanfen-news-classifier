@@ -1,5 +1,20 @@
 # 验证记录
 
+## 2026-10-25 · v0.4.0 发布检查
+
+使用 PyCharm 配置的 Anaconda `toumanfen`（Python 3.10.22）。以下检查使用内存中的小型随机网络和合成样本，没有加载或覆盖本地训练权重。
+
+| 检查 | 结果与边界 |
+| --- | --- |
+| Python 语法 | 07、08 阶段全部 16 个 Python 文件 AST 解析通过 |
+| Student 与蒸馏损失 | 2 条合成序列，分类输出 `(2, 10)`、特征输出 `(2, 12)`；损失有限且反向传播产生非零梯度 |
+| 剪枝评估函数 | 已知预测的三分类合成样本，Accuracy 和 Macro-F1 均为 1.0；仅证明指标链路 |
+| Query 剪枝 | 小型 Linear 权重全局 L1 剪枝后稀疏率为 30%；移除剪枝重参数化后输出保持一致 |
+
+没有重新执行完整蒸馏、剪枝恢复训练、真实模型预测、全量测试集或性能基准。下方 2026-10-21 的 33 项自动检查与实际量化结果属于历史记录，本日未重复执行。
+
+代码阅读发现：`08_model_prune/src/pruning_utils.py` 的 `cal_model_zero_ratio` 在遍历子模块时检查了外层 `model` 的 `weight`，对典型 BERT 不能正确统计全模型零值比例。当前训练入口使用的是 `calculate_sparsity` 统计 Query 权重，不调用此辅助函数。本次记录现有代码，未改动该逻辑。
+
 ## 2026-10-21 · LLM 评估与 INT8 实验
 
 环境：Windows、Python 3.10.22、Anaconda toumanfen、PyTorch 2.14.1+cu126、TorchAO 0.18.0、Transformers 5.19.0。CPU 推理；没有重新训练 BERT。
